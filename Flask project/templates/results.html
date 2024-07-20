@@ -55,8 +55,10 @@
             <p>{{keywords}}</p>
                 <h4>Количество вакансий</h4>
             <p>{{count}}</p>
-                <h4>Средняя зарплата</h4>
-            <p>От {{mean_salary.salary.from}} до {{mean_salary.salary.to}}  рублей</p>
+                <h4>Средняя зарплата в рублях</h4>
+            <p>Минимальная: {{mean_salary.salary.from}}
+                <br />
+                Максимальная: {{mean_salary.salary.to}}</p>
                 <h4>Самые часто требуемые навыки</h4>
                 <ul>
                 {% for item in requirements %}

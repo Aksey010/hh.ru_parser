@@ -86,14 +86,24 @@ def hh_parser(vacancy,city):
                 pass
         print(f'Выполнено!')
 
-    salary['salary']['from'] = int(salary['salary']['from'] / c_f)  # Получение средней зарплаты
-    salary['salary']['to'] = int(salary['salary']['to'] / c_t)  # Получение средней зарплаты
+    try:
+        salary['salary']['from'] = int(salary['salary']['from'] / c_f)  # Получение средней зарплаты
 
+    except ZeroDivisionError:
+        salary['salary']['from'] = 'Нет информации'
+
+    try:
+        salary['salary']['to'] = int(salary['salary']['to'] / c_t)  # Получение средней зарплаты
+    except ZeroDivisionError:
+        salary['salary']['to'] = 'Нет информации'
 
     # Получение несколько (5) самых нужных навыков
-    for i in range(5):
-        best_skill[max(requirements)] = requirements[max(requirements)]
-        del requirements[max(requirements)]
+    try:
+        for i in range(5):
+            best_skill[max(requirements)] = requirements[max(requirements)]
+            del requirements[max(requirements)]
+    except:
+        best_skill = 'Нет информации'
 
     # Составление сообщения
     report = {'keywords': vacancy_city,   # Введёный запрос
