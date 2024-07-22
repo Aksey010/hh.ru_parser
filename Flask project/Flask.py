@@ -16,13 +16,12 @@ def form():
 
 @app.route('/form/result', methods=['POST'])
 def sumbit():
+
     vac = request.form['vacancy']
     city = request.form['city']
-    hh_parser(vacancy=vac, city=city)
+    vacancy, city, count, from_, to_, skill = hh_parser(vacancy=vac, city=city)
 
-    with open('result.json', mode='r') as f:
-        data = json.load(f)
-        print(data)
+    data = {'vacancy': vacancy, 'city': city, 'count': count, "from_": from_, 'to_': to_, 'skill': skill}
 
     return render_template('results.html', **data)
 

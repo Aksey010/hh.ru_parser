@@ -34,7 +34,7 @@
                 <!-- Page content-->
                 <div class="container-fluid">
                     <h1 class="mt-4">Поиск по вакансиям</h1>
-                   <form action="/result"  method="GET">
+                   <form action="/form/result"  method="POST">
     <input type="text" placeholder="Введите вакансию" name="vacancy"><br>
     <p>
      <select name="city">
@@ -46,22 +46,23 @@
          <option value="Владивосток" name="city">Владивосток</option>
      </select>
     </p>
-    <input type="submit" value="искать">
+    <input type="submit" value="Искать">
 </form>
                 </div>
                 <hr>
 
                 <h4>Запрос:</h4>
-            <p>{{keywords}}</p>
+            <p>{{vacancy}}<br>
+                {{city}}</p>
                 <h4>Количество вакансий</h4>
             <p>{{count}}</p>
                 <h4>Средняя зарплата в рублях</h4>
-            <p>Минимальная: {{mean_salary.salary.from}}
+            <p>Минимальная: {{from_}}
                 <br />
-                Максимальная: {{mean_salary.salary.to}}</p>
+                Максимальная: {{to_}}</p>
                 <h4>Самые часто требуемые навыки</h4>
                 <ul>
-                {% for item in requirements %}
+                {% for item in skill %}
                 <li>{{item}}
                 {% endfor %}
                 </ul>
