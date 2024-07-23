@@ -5,9 +5,11 @@ import json
 app = Flask(__name__)
 print(app.name)
 
+
 @app.route("/")
 def index():
     return render_template('index.html')
+
 
 @app.route("/form")
 def form():
@@ -29,6 +31,7 @@ def sumbit():
 @app.route("/contacts")
 def contacts():
     return render_template('contacts.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,8 +1,16 @@
 import requests
 from json import dump
-import sqlite3
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from SQLAlchemy import Requirements, Skills, Search
 
 def hh_parser(vacancy, city):
+
+    engine = create_engine('sqlite:///orm.sqlite', echo=True)
+    engine.connect()
+    Session = sessionmaker(bind=engine)
+    sess = Session()
+
 
     #  Юзер-агент
     headers = {
@@ -35,14 +43,11 @@ def hh_parser(vacancy, city):
     requirements = {}  # Переменная для всех требуемых навыков
     best_skill = []  # Переменная для самых нужных навыков
 
-    conn = sqlite3.connect('hh_ru.db', check_same_thread=False)
-
-    cur = conn.cursor()
-
-    search = cur.execute("select vacancy, city from search").fetchall()
+    # Поиск в Search по вакансии и городу
+    condition = sess.query(Search).filter_by(vacancy=vacancy, city=city).first()
 
     # Если вакансия и город не в базе, то ...
-    if (vacancy, city) not in search:
+    if not condition:
 
         want_pages = 2
         # while True:
@@ -98,7 +103,7 @@ def hh_parser(vacancy, city):
             print(f'Выполнено!')
 
         try:
-            from_ = int( from_ / c_f)  # Получение средней зарплаты
+            from_ = int(from_ / c_f)  # Получение средней зарплаты
 
         except ZeroDivisionError:
             from_ = 'Нет информации'
@@ -117,66 +122,51 @@ def hh_parser(vacancy, city):
             best_skill = 'Нет информации'
 
         # Вставить в search всё найденное
-        cur.execute("insert into search values(?,?,?,?,?,?)",
-                    [None, vacancy, city, count, from_, to_])
-        conn.commit()
+
+        sess.add(Search(vacancy, city, count, from_, to_))
+        sess.commit()
+
+        world_id = sess.query(Search).all()[-1].world_id
+
         # Если best_skill не пуст
         if best_skill:
-            # В skills добавляются связки (None,best_skill)
+
             if best_skill != 'Нет информации':
 
-                data = [(None, best_skill[i]) for i in range(len(best_skill))]
-                cur.executemany("insert into skills values(?,?)", data)
-                conn.commit()
+                for skill in best_skill:
+                    sess.add(Skills(skill))
+                    s_id = sess.query(Skills).filter_by(name=skill).first().id
+                    sess.add(Requirements(world_id, s_id))
+            else:
+                sess.add(Requirements(world_id, best_skill))
 
-                # В requirements добавляются world_id и id_skill
-                world_id = cur.execute("select world_id from search").fetchall()[-1][0]
-                skill_id = []
-                skill_world = []
+            sess.commit()
+            sess.close()
 
-                # print(f'best_skill {best_skill}')
+        if not best_skill:
+            best_skill = 'Нет информации'
 
-                for i in range(len(best_skill)):
-                    one_skill = best_skill[i]
-                    # print(f'one_skill {one_skill}')
-                    skill_id.append(cur.execute("select id from skills where name= ?", [one_skill]).fetchall()[0][0])
-                    skill_world.append((world_id, skill_id[i]))
+        return vacancy, city, count, from_, to_, best_skill
 
-                # print(f'best_skill {best_skill}')
-                # print(f'skill_id {skill_id}')
-                # print(f'skill_world {skill_world}')
-
-                cur.executemany("insert into requirements values(?,?)", skill_world)
-
-            conn.commit()
-            conn.close()
-
-        skill = best_skill
-
-        return vacancy, city, count, from_, to_, skill
-
+    # Если запрос в базе
     else:
-        count = cur.execute("select count from search where vacancy=? and city=?", [vacancy, city]).fetchall()[0][
-            0]  # Кол-во найденных записей
-        # print(f'count {count}')
-        from_ = cur.execute("select [from] from search where vacancy=? and city=?", [vacancy, city]).fetchall()[0][
-            0]  # Средняя зарплата меньшее значение
-        # print(f'from_ {from_}')
-        to_ = cur.execute("select [to] from search where vacancy=? and city=?", [vacancy, city]).fetchall()[::][0][0]
-        # print(f'to_ {to_}')
-        world_id = cur.execute("select world_id from search where vacancy=? and city=?", [vacancy, city]).fetchall()[0][0]
-        # print(f'world_id {world_id}')
-        id_skill = cur.execute("select id_skill from requirements where world_id=?", [world_id]).fetchall()
-        # print(f'id_skill {id_skill}')
+        data = sess.query(Search).filter_by(vacancy=condition.vacancy, city=condition.city).first()
+
+        id_s = sess.query(Requirements).filter_by(world_id=data.world_id).all()
 
         skill = []
-        for i in range(len(id_skill)):
-            skill.append(cur.execute("select name from skills where id=?", id_skill[i]).fetchall()[::][0][0])
-        # print(f'skill {skill}')
+        for i in id_s:
 
-        cur.close()
+            skill.append(sess.query(Skills).filter_by(id=i.id).first().name)
 
-        return vacancy, city, count, from_, to_, skill
+        sess.close()
+
+        if not skill:
+            skill = 'Нет информации'
+
+        return data.vacancy, data.city, data.count, data.sal_from, data.sal_to, skill
+
+
 
 
 
@@ -195,5 +185,6 @@ def hh_parser(vacancy, city):
 
 if __name__ == '__main__':
 
-    _,_,_,_,_, skills = hh_parser('Юрист', 'Москва')
+    # _,_,_,_,_,_ = hh_parser('C++ developer', 'Москва')
+    print(hh_parser('das', 'Москва'))
 
