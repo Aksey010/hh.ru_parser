@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="hh.ru parser" />
+        <meta name="author" content="Aksey_010" />
+        <title>hh.ru parser</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet" type="text/css" >
+    </head>
+    <body>
+        <div class="d-flex" id="wrapper">
+
+            <!-- Sidebar-->
+            <div class="border-end bg-white" id="sidebar-wrapper">
+                <div class="sidebar-heading border-bottom bg-light">hh.ru parser</div>
+                <div class="list-group list-group-flush">
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/">Главная страница</a>
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/form">Поиск по вакансиям</a>
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/contacts">Контактные данные</a>
+                </div>
+            </div>
+            <!-- Page content wrapper-->
+            <div id="page-content-wrapper">
+                <!-- Top navigation-->
+                <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                    <div class="container-fluid">
+                        <button class="btn btn-primary" id="sidebarToggle">Спрятать/показать меню</button>
+                    </div>
+                </nav>
+                <!-- Page content-->
+                <div class="container-fluid">
+                    <h1 class="mt-4">Поиск по вакансиям</h1>
+                   <form action="/form/result"  method="POST">
+    <input type="text" placeholder="Введите вакансию" name="vacancy"><br>
+    <p>
+     <select name="city">
+         <option disabled>Выберите город</option>
+         <option value="Москва" name="city">Москва</option>
+         <option value="Санкт-Петербург" name="city">Санкт-Петербург</option>
+         <option value="Казань" name="city">Казань</option>
+         <option value="Рязань" name="city">Рязань</option>
+         <option value="Владивосток" name="city">Владивосток</option>
+     </select>
+    </p>
+    <input type="submit" value="Искать">
+</form>
+                </div>
+                <hr>
+
+                <h4>Запрос:</h4>
+            <p>{{vacancy}}<br>
+                {{city}}</p>
+                <h4>Количество вакансий</h4>
+            <p>{{count}}</p>
+                <h4>Средняя зарплата в рублях</h4>
+            <p>От {{from_}}
+                <br />
+                До {{to_}}</p>
+                <h4>Самые часто требуемые навыки</h4>
+                <ul>
+                {% for item in skill %}
+                <li>{{item}}
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+       <script src="{{ url_for('static', filename='js/scripts.js')}}"></script>
+    </body>
+</html>
